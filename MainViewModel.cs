@@ -89,7 +89,7 @@ namespace PageSourceUI
         private List<string> GetApplications()
         {
             int pId = Process.GetCurrentProcess().Id;
-            List<string> windowHandles = new List<string>();
+            List<string> windowHandles = new List<string>() { "Root" };
             foreach (Process window in Process.GetProcesses())
             {
                 if (window.Id == pId)
@@ -232,12 +232,23 @@ namespace PageSourceUI
             {
                 return driver;
             }
-            int index = Selected.LastIndexOf(" @ ");
-            int handle = int.Parse(Selected.Substring(index + 3));
-            DesiredCapabilities appCapabilities = new DesiredCapabilities();
-            appCapabilities.SetCapability("appTopLevelWindow", "0x" + handle.ToString("X"));
-            appCapabilities.SetCapability("deviceName", "WindowsPC");
-            appCapabilities.SetCapability("platformName", "Windows 11");
+            DesiredCapabilities appCapabilities;
+            if (!Selected.Equals("Root"))
+            {
+                int index = Selected.LastIndexOf(" @ ");
+                int handle = int.Parse(Selected.Substring(index + 3));
+                appCapabilities = new DesiredCapabilities();
+                appCapabilities.SetCapability("appTopLevelWindow", "0x" + handle.ToString("X"));
+                appCapabilities.SetCapability("deviceName", "WindowsPC");
+                appCapabilities.SetCapability("platformName", "Windows 11");
+            }
+            else
+            {
+                appCapabilities = new DesiredCapabilities();
+                appCapabilities.SetCapability("app", "Root");
+                appCapabilities.SetCapability("deviceName", "WindowsPC");
+                appCapabilities.SetCapability("platformName", "Windows 11");
+            }
             WindowsDriver<WindowsElement> ret;
             do
             {
